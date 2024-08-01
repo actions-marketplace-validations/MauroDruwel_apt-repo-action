@@ -1,6 +1,6 @@
-FROM ubuntu:bionic
+FROM ubuntu:jammy
 
-LABEL maintainer="jrandiny <jrandiny@gmail.com>"
+LABEL maintainer="Mauro Druwel <mauro.druwel@gmail.com>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 

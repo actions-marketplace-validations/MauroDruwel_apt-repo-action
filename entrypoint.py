@@ -24,12 +24,11 @@ if __name__ == '__main__':
     supported_version = os.environ.get('INPUT_REPO_SUPPORTED_VERSION')
     deb_file_path = os.environ.get('INPUT_FILE')
     deb_file_target_version = os.environ.get('INPUT_FILE_TARGET_VERSION')
-    github_repo = os.environ.get('GITHUB_REPOSITORY')
+    target_repo = os.environ.get('INPUT_TARGET_REPOSITORY')
 
-    gh_branch = os.environ.get('INPUT_PAGE_BRANCH', 'gh-pages')
     apt_folder = os.environ.get('INPUT_REPO_FOLDER', 'repo')
 
-    if None in (github_token, supported_arch, supported_version, deb_file_path):
+    if None in (github_token, supported_arch, supported_version, deb_file_path, target_repo):
         logging.error('Required key is missing')
         sys.exit(1)
 
@@ -57,30 +56,24 @@ if __name__ == '__main__':
 
     logging.info('-- Done parsing input --')
 
-    # Clone repo
+    # Clone target repo
 
-    logging.info('-- Cloning current Github page --')
+    logging.info('-- Cloning target Github repository --')
 
-    github_user = github_repo.split('/')[0]
-    github_slug = github_repo.split('/')[1]
+    target_repo_url = f'https://{github_token}@github.com/{target_repo}.git'
+    target_repo_name = target_repo.split('/')[1]
 
-    if os.path.exists(github_slug):
-        shutil.rmtree(github_slug)
+    if os.path.exists(target_repo_name):
+        shutil.rmtree(target_repo_name)
 
-    git_repo = git.Repo.clone_from(
-        'https://{}@github.com/{}.git'.format(github_token, github_repo),
-        github_slug,
-    )
+    git_repo = git.Repo.clone_from(target_repo_url, target_repo_name)
 
     git_refs = git_repo.remotes.origin.refs
     git_refs_name = list(map(lambda x: str(x).split('/')[-1], git_refs))
 
     logging.debug(git_refs_name)
 
-    if gh_branch not in git_refs_name:
-        git_repo.git.checkout(b=gh_branch)
-    else:
-        git_repo.git.checkout(gh_branch)
+    git_repo.git.checkout('main')
 
     # Generate metadata
     logging.debug("cwd : {}".format(os.getcwd()))
@@ -100,7 +93,7 @@ if __name__ == '__main__':
     logging.debug('Metadata {}'.format(current_metadata_str))
 
     # Get metadata
-    all_commit = git_repo.iter_commits(gh_branch)
+    all_commit = git_repo.iter_commits('main')
     all_apt_action_commit = list(filter(lambda x: (x.message[:12] == '[apt-action]'), all_commit))
     apt_action_metadata_str = list(
         map(
@@ -115,17 +108,17 @@ if __name__ == '__main__':
     logging.debug(apt_action_valid_metadata_str)
 
     for check_metadata in apt_action_metadata:
-        if (check_metadata == current_metadata):
+        if check_metadata == current_metadata:
             logging.info('Loop detected, exiting')
             sys.exit(0)
 
-    logging.info('-- Done cloning current Github page --')
+    logging.info('-- Done cloning target Github repository --')
 
     # Prepare key
 
     logging.info('-- Importing key --')
 
-    key_dir = os.path.join(github_slug, 'public.key')
+    key_dir = os.path.join(target_repo_name, 'public.key')
     gpg = gnupg.GPG()
 
     detectPublicKey(gpg, key_dir, key_public)
@@ -137,7 +130,7 @@ if __name__ == '__main__':
 
     logging.info('-- Preparing repo directory --')
 
-    apt_dir = os.path.join(github_slug, apt_folder)
+    apt_dir = os.path.join(target_repo_name, apt_folder)
     apt_conf_dir = os.path.join(apt_dir, 'conf')
 
     if not os.path.isdir(apt_dir):
@@ -149,7 +142,7 @@ if __name__ == '__main__':
 
     with open(os.path.join(apt_conf_dir, 'distributions'), 'w') as distributions_file:
         for codename in supported_version_list:
-            distributions_file.write('Description: {}\n'.format(github_repo))
+            distributions_file.write('Description: {}\n'.format(target_repo))
             distributions_file.write('Codename: {}\n'.format(codename))
             distributions_file.write('Architectures: {}\n'.format(' '.join(supported_arch_list)))
             distributions_file.write('Components: main\n')
@@ -179,18 +172,22 @@ if __name__ == '__main__':
 
     logging.info('-- Done adding package to repo --')
 
-    # Commiting and push changes
+    # Commit and push changes
 
     logging.info('-- Saving changes --')
+
+    github_user = target_repo.split('/')[0]
 
     git_repo.config_writer().set_value(
         'user', 'email', '{}@users.noreply.github.com'.format(github_user)
     )
 
-    git_repo.git.add('*')
+    # Only add changes in the apt directory
+    apt_dir_path = os.path.join(target_repo_name, apt_folder)
+    git_repo.git.add(apt_dir_path)
     git_repo.index.commit(
         '[apt-action] Update apt repo\n\n\napt-action-metadata{}'.format(current_metadata_str)
     )
-    git_repo.git.push('--set-upstream', 'origin', gh_branch)
+    git_repo.git.push('origin', 'main')
 
     logging.info('-- Done saving changes --')
