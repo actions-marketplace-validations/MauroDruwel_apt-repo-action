@@ -1,6 +1,6 @@
 # Github pages APT repo
 
-This action will setup and manage a simple APT repo on your github pages
+This action will setup and manage a simple APT repo on your Github pages or a separate repository.
 
 ## Inputs
 
@@ -10,39 +10,39 @@ This action will setup and manage a simple APT repo on your github pages
 
 ### `repo_supported_arch`
 
-**Required** Newline-delimited list of supported architecture
+**Required** Newline-delimited list of supported architecture.
 
 ### `repo_supported_version`
 
-**Required** Newline-delimited list of supported (linux) version
+**Required** Newline-delimited list of supported (Linux) version.
 
 ### `file`
 
-**Required** .deb files to be included
+**Required** .deb file to be included.
 
 ### `file_target_version`
 
-**Required** Version target of supplied .deb file
+**Required** Version target of the supplied .deb file.
 
 ### `private_key`
 
-**Required** GPG private key for signing APT repo
+**Required** GPG private key for signing the APT repo.
 
 ### `public_key`
 
-GPG public key for APT repo
+**Required** GPG public key for the APT repo.
 
 ### `key_passphrase`
 
-Passphrase of GPG private key
+Passphrase for the GPG private key.
 
-### `page_branch`
+### `target_repository`
 
-Branch of Github pages. Defaults to `gh-pages`
+**Required** Repository to which the APT repo will be pushed (e.g., `username/apt-repo`).
 
 ### `repo_folder`
 
-Location of APT repo folder relative to root of Github pages. Defaults to `repo`
+Location of the APT repo folder relative to the root of the target repository. Defaults to `repo`.
 
 ## Example usage
 
@@ -50,10 +50,10 @@ Location of APT repo folder relative to root of Github pages. Defaults to `repo`
 uses: jrandiny/apt-repo-action@v1
 with:
   github_token: ${{ secrets.PAT }}
-  arch: |
+  repo_supported_arch: |
     amd64
     i386
-  version: |
+  repo_supported_version: |
     bionic
     trusty
   file: my_program_bionic.deb
@@ -61,4 +61,5 @@ with:
   public_key: ${{ secrets.PUBLIC }}
   private_key: ${{ secrets.PRIVATE }}
   key_passphrase: ${{ secrets.SECRET }}
-```
+  target_repository: username/apt-repo
+  repo_folder: repo
