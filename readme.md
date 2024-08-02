@@ -1,4 +1,4 @@
-# Github pages APT repo
+# Host your own APT Repo on Github
 
 This action will setup and manage a simple APT repo on your Github pages or a separate repository.
 
