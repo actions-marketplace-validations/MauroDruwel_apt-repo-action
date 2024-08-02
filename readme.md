@@ -47,7 +47,7 @@ Location of the APT repo folder relative to the root of the target repository. D
 ## Example Usage
 
 ```yaml
-uses: jrandiny/apt-repo-action@v1
+uses: MauroDruwel/apt-repo-action@v3
 with:
   github_token: ${{ secrets.PAT }}
   repo_supported_arch: |
