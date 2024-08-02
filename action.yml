@@ -29,6 +29,9 @@ inputs:
     description: "Branch of Github pages"
     required: false
     default: "gh-pages"
+  target_repository:
+    description: "Required Repository to which the APT repo will be pushed (e.g., username/apt-repo)."
+    required: true
   repo_folder:
     description: "Location of APT repo folder relative to root of Github pages"
     required: false
