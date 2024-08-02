@@ -1,5 +1,5 @@
-name: "Github pages APT repo"
-description: "Setup and manage APT repo on Github pages"
+name: "Host your own APT Repo on Github"
+description: "Host your own .deb files on GitHub Pages of a separate (public) repository."
 inputs:
   github_token:
     description: "Github token with commit and push scope"
