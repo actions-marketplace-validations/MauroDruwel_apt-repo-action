@@ -1,7 +1,3 @@
-Certainly! Here’s a cleaner version of your documentation for hosting your own APT repo on GitHub:
-
----
-
 # Host Your Own APT Repo on GitHub
 
 This GitHub Action sets up and manages a simple APT repository on GitHub Pages or a separate repository.
@@ -77,8 +73,4 @@ wget https://YOURGITHUBPAGESURL/public.key -O- | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://YOURGITHUBPAGESURL/repo/ bionic main"
 ```
 
-Replace `YOURGITHUBPAGESURL` with your GitHub Pages URL or repository URL, and adjust the distribution and component as necessary.
-
---- 
-
-Feel free to modify the instructions according to your specific setup or requirements!
+Replace `YOURGITHUBPAGESURL` with your GitHub Pages URL, and adjust the distribution and component as necessary.
