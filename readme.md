@@ -63,7 +63,7 @@ with:
   key_passphrase: ${{ secrets.SECRET }}
   target_repository: username/apt-repo
   repo_folder: repo
-
+```
 
 wget https://YOURGITHUBPAGESURL/public.key -O- | sudo apt-key add -
 sudo add-apt-repository "https://YOURGITHUBPAGESURL/repo/"
